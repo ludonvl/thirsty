@@ -1,11 +1,6 @@
 <div class="sidebar" data-color="white" data-active-color="danger">
     <div class="logo">
-        <a href="http://www.creative-tim.com" class="simple-text logo-mini">
-            <div class="logo-image-small">
-                <img src="{{ asset('paper') }}/img/logo-small.png">
-            </div>
-        </a>
-        <a href="#" class="simple-text logo-normal">
+        <a href="{{ route('page.index', 'dashboard') }}" class="simple-text logo-normal text-center">
             Hey, {{ __(auth()->user()->name)}}
         </a>
     </div>
@@ -26,25 +21,25 @@
             <li class="{{ $elementActive == 'drinks' ? 'active' : '' }}">
                 <a href="{{ route('page.index', 'drinks') }}">
                     <i class="nc-icon nc-bullet-list-67"></i>
-                    <p>{{ __('Boissons') }}</p>
+                    <p>{{ __('Group & Boissons') }}</p>
                 </a>
             </li>
             <li class="{{ $elementActive == 'qrcode' ? 'active' : '' }}">
                 <a href="{{ route('page.index', 'qrcode') }}">
                     <i class="nc-icon nc-touch-id"></i>
-                    <p>{{ __('QR code') }}</p>
+                    <p>{{ __('Menu') }}</p>
+                </a>
+            </li>
+            <li class="{{ $elementActive == 'map' ? 'active' : '' }}">
+                <a href="{{ route('page.index', 'map') }}">
+                    <i class="nc-icon nc-pin-3"></i>
+                    <p>{{ __('Bars') }}</p>
                 </a>
             </li>
             <li class="{{ $elementActive == 'icons' ? 'active' : '' }}">
                 <a href="{{ route('page.index', 'icons') }}">
                     <i class="nc-icon nc-diamond"></i>
                     <p>{{ __('Icones') }}</p>
-                </a>
-            </li>
-            <li class="{{ $elementActive == 'map' ? 'active' : '' }}">
-                <a href="{{ route('page.index', 'map') }}">
-                    <i class="nc-icon nc-pin-3"></i>
-                    <p>{{ __('Maps') }}</p>
                 </a>
             </li>
             <li class="{{ $elementActive == 'notifications' ? 'active' : '' }}">
@@ -63,12 +58,6 @@
                 <a href="{{ route('page.index', 'typography') }}">
                     <i class="nc-icon nc-caps-small"></i>
                     <p>{{ __('Typography') }}</p>
-                </a>
-            </li>
-            <li class="active-pro {{ $elementActive == 'upgrade' ? 'active' : '' }}">
-                <a href="{{ route('page.index', 'upgrade') }}" class="bg-danger">
-                    <i class="nc-icon nc-spaceship text-white"></i>
-                    <p class="text-white">{{ __('Upgrade to PRO') }}</p>
                 </a>
             </li>
         </ul>

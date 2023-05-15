@@ -6,7 +6,9 @@ use App\Http\Requests\DrinkRequest;
 use App\Models\Drink;
 use App\Models\Group;
 use App\Models\Menu;
+use App\Services\CocktailsData;
 use Illuminate\Http\Request;
+use App\Helpers\Helper;
 
 class DrinkController extends Controller
 {
@@ -26,7 +28,9 @@ class DrinkController extends Controller
 
         $groups = Group::where('menu_id', $menuId)->get();
 
-        return view('drink.create', compact('menuId', 'groups'));
+        $cocktails = (new CocktailsData())->getDatas();
+
+        return view('drink.create', compact('menuId', 'groups', 'cocktails'));
     }
 
     public function show(string $id)

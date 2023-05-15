@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Menu;
 use App\Services\QrcodeGenerate;
-use Illuminate\Http\Request;
 
 class MenuController extends Controller
 {
@@ -18,7 +17,7 @@ class MenuController extends Controller
     {
         if (filled($id)) {
             $menu = Menu::with(['groups.drinks', 'user'])->findOrFail($id);
-            $qrcode = (new QrcodeGenerate())->setListId($id)->setSize(QrcodeGenerate::SIZE_SMALL)->generate();
+            $qrcode = (new QrcodeGenerate())->setMenuId($id)->setSize(QrcodeGenerate::SIZE_SMALL)->generate();
 
             return view('menu', compact('qrcode', 'menu'));
         }
