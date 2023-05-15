@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Drink;
-use App\Models\DrinkList;
-use App\Models\DrinkType;
 use App\Models\Group;
 use App\Models\Menu;
+use App\Services\CocktailsData;
 use App\Services\QrcodeGenerate;
 use Illuminate\Support\Facades\Auth;
 
@@ -36,7 +34,7 @@ class PageController extends Controller
 
             if ($page === 'qrcode') {
                 $menu = Menu::where('user_id', $id)->first();
-                $qrcode = (new QrcodeGenerate())->setListId($menu->getKey())->generate();
+                $qrcode = (new QrcodeGenerate())->setMenuId($menu->getKey())->generate();
 
                 $data = compact('qrcode');
             } else if ($page === 'drinks') {

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('group_id');
             $table->string('glass')->nullable()->default(null);
             $table->string('name');
+            $table->string('reference_name')->nullable()->default(null);
             $table->timestamps();
             $table->softDeletes();
         });

@@ -32,6 +32,14 @@ class QrcodeGenerate
     public function generate()
     {
         $url = env('MENU_URL') . '/menus/' . $this->menuId;
-        return QrCode::size($this->size)->generate($url);
+        // return QrCode::size($this->size)
+        //     ->color(8, 114, 145, 100)
+        //     ->backgroundColor(0, 0, 0)
+        //     ->style('round', 0.9)
+        //     ->generate($url);
+
+        return QrCode::size($this->size)
+            ->style('round', 0.9)
+            ->generate($url);
     }
 }

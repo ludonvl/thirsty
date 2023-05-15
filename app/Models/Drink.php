@@ -17,6 +17,7 @@ class Drink extends Model
      */
     protected $fillable = [
         'name',
+        'reference_name',
         'group_id',
     ];
 
