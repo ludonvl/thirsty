@@ -42,6 +42,8 @@ jobs:
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
     - name: Install Dependencies
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+    - name: Move to Working dir
+      run: rm -rf "${{vars.PROJECT_PATH}}*" && mv ../* "${{vars.PROJECT_PATH}}"
     - name: Generate key
       run: php artisan key:generate
     - name: Directory Permissions
@@ -50,8 +52,6 @@ jobs:
       run: |
         mkdir -p database
         touch ${{vars.PROJECT_PATH}}/database/database.sqlite
-    - name: Move to Working dir
-      run: rm -rf "${{vars.PROJECT_PATH}}*" && mv ../* "${{vars.PROJECT_PATH}}"
     - name: Change variable
       env:
         DB_CONNECTION: sqlite
