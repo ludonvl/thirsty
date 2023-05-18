@@ -52,3 +52,8 @@ jobs:
         touch ${{vars.PROJECT_PATH}}/database/database.sqlite
     - name: Move to Working dir
       run: rm -rf "${{vars.PROJECT_PATH}}*" && mv ../* "${{vars.PROJECT_PATH}}"
+    - name: Change variable
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: ${{vars.PROJECT_PATH}}/database/database.sqlite
+        APP_DEBUG: false
