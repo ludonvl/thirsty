@@ -57,3 +57,4 @@ jobs:
         DB_CONNECTION: sqlite
         DB_DATABASE: ${{vars.PROJECT_PATH}}/database/database.sqlite
         APP_DEBUG: false
+      run: php artisan migrate
