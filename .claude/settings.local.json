@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/Users/ludovicnouvel/.nvm/versions/node/v24.4.0/bin/npx --yes create-next-app@latest . --ts --tailwind --app --src-dir --eslint --import-alias \"@/*\")"
+    ]
+  }
+}
