@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { LayoutGrid, Leaf, Loader2, Martini, Mic } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useSpeechRecognition } from "@/lib/useSpeechRecognition";
 import { useLang } from "@/lib/useLang";
 import {
@@ -9,6 +12,7 @@ import {
   UI,
   tAlcoholic,
   tCategory,
+  tMicError,
   type Lang,
 } from "@/lib/i18n";
 import type { AlcoholFilter, CocktailMatch } from "@/lib/types";
@@ -24,7 +28,14 @@ export default function Home() {
   const [searched, setSearched] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { supported, listening, toggle } = useSpeechRecognition((text) => {
+  const {
+    supported,
+    listening,
+    transcribing,
+    level,
+    error: micError,
+    toggle,
+  } = useSpeechRecognition((text) => {
     setQuery(text);
     inputRef.current?.focus();
   }, SPEECH_LOCALE[lang]);
@@ -66,10 +77,10 @@ export default function Home() {
     };
   }, [query, filter]);
 
-  const filters: { value: AlcoholFilter; label: string }[] = [
-    { value: null, label: t.filters.all },
-    { value: "alcoholic", label: t.filters.alcoholic },
-    { value: "non-alcoholic", label: t.filters.nonAlcoholic },
+  const filters: { value: AlcoholFilter; label: string; Icon: LucideIcon }[] = [
+    { value: null, label: t.filters.all, Icon: LayoutGrid },
+    { value: "alcoholic", label: t.filters.alcoholic, Icon: Martini },
+    { value: "non-alcoholic", label: t.filters.nonAlcoholic, Icon: Leaf },
   ];
 
   return (
@@ -82,31 +93,59 @@ export default function Home() {
               type="button"
               onClick={() => setLang(l)}
               aria-pressed={lang === l}
-              className={`rounded-md px-2 py-0.5 text-xs font-medium uppercase transition ${
+              className={`rounded-md px-2 py-1 text-xs font-medium uppercase transition ${
                 lang === l
                   ? "bg-black text-white dark:bg-white dark:text-black"
-                  : "text-black/40 hover:text-black/70 dark:text-white/40 dark:hover:text-white/70"
+                  : "text-black/50 hover:text-black/70 dark:text-white/50 dark:hover:text-white/70"
               }`}
             >
               {l}
             </button>
           ))}
         </div>
-        <h1 className="font-display text-[72px] font-normal tracking-tight">
-          🍸 Thirsty
-        </h1>
-        <p className="mt-2 text-[28px] font-medium text-black/50 dark:text-white/50">
+        <div className="flex items-center justify-center gap-2">
+          <Image
+            src="/logo.png"
+            alt=""
+            width={128}
+            height={128}
+            priority
+          />
+          <h1 className="font-display text-7xl font-normal tracking-tight">
+            Thirsty
+          </h1>
+        </div>
+        <p className="mt-2 text-2xl font-normal text-black/60 dark:text-white/60">
           {t.tagline}
         </p>
       </header>
 
       {/* Search bar — mic on the left, input filling the rest. */}
-      <div className="sticky top-4 z-10 flex items-center gap-2 rounded-full border border-black/10 bg-white px-2 py-2 shadow-sm dark:border-white/15 dark:bg-neutral-900">
+      <div
+        style={
+          listening
+            ? {
+                boxShadow: `0 0 0 ${3 + level * 12}px rgba(239, 68, 68, ${
+                  0.1 + level * 0.4
+                })`,
+                transition: "box-shadow 100ms ease-out",
+              }
+            : undefined
+        }
+        className="sticky top-4 z-10 flex items-center gap-2 rounded-full border border-black/10 bg-white px-2 py-2 shadow-sm transition focus-within:ring-2 focus-within:ring-black/15 dark:border-white/15 dark:bg-neutral-900 dark:focus-within:ring-white/20"
+      >
         {supported && (
           <button
             type="button"
             onClick={toggle}
-            aria-label={listening ? t.stopListening : t.listen}
+            disabled={transcribing}
+            aria-label={
+              transcribing
+                ? t.transcribing
+                : listening
+                  ? t.stopListening
+                  : t.listen
+            }
             aria-pressed={listening}
             className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition ${
               listening
@@ -114,7 +153,11 @@ export default function Home() {
                 : "bg-black/5 text-black/60 hover:bg-black/10 dark:bg-white/10 dark:text-white/70 dark:hover:bg-white/20"
             }`}
           >
-            <MicIcon />
+            {transcribing ? (
+              <Loader2 size={20} className="animate-spin" />
+            ) : (
+              <Mic size={20} />
+            )}
           </button>
         )}
         <input
@@ -122,14 +165,23 @@ export default function Home() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t.placeholder}
-          className="min-w-0 flex-1 bg-transparent px-2 text-base outline-none placeholder:text-black/30 dark:placeholder:text-white/30"
+          className="min-w-0 flex-1 bg-transparent px-2 text-base outline-none placeholder:text-black/50 dark:placeholder:text-white/50"
         />
         {loading && <Spinner />}
       </div>
 
+      {micError && (
+        <p
+          role="alert"
+          className="mt-2 text-center text-sm text-red-600 dark:text-red-400"
+        >
+          {tMicError(micError, lang)}
+        </p>
+      )}
+
       {/* Alcohol filter chips */}
       <div className="mt-3 flex justify-center gap-2">
-        {filters.map(({ value, label }) => {
+        {filters.map(({ value, label, Icon }) => {
           const active = filter === value;
           return (
             <button
@@ -137,12 +189,13 @@ export default function Home() {
               type="button"
               onClick={() => setFilter(value)}
               aria-pressed={active}
-              className={`rounded-full px-3 py-1 text-sm transition ${
+              className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-sm transition ${
                 active
                   ? "bg-black text-white dark:bg-white dark:text-black"
                   : "bg-black/5 text-black/60 hover:bg-black/10 dark:bg-white/10 dark:text-white/70 dark:hover:bg-white/20"
               }`}
             >
+              <Icon size={16} />
               {label}
             </button>
           );
@@ -152,7 +205,7 @@ export default function Home() {
       {/* Results */}
       <section className="mt-8 space-y-4">
         {searched && !loading && results.length === 0 && (
-          <p className="text-center text-sm text-black/40 dark:text-white/40">
+          <p className="text-center text-sm text-black/60 dark:text-white/60">
             {t.empty}
           </p>
         )}
@@ -186,15 +239,15 @@ function CocktailCard({
         />
       )}
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <h2 className="text-lg font-semibold">{cocktail.name}</h2>
           {category && (
-            <span className="rounded-full bg-black/5 px-2 py-0.5 text-xs text-black/50 dark:bg-white/10 dark:text-white/50">
+            <span className="rounded-full bg-black/5 px-2 py-0.5 text-xs text-black/60 dark:bg-white/10 dark:text-white/60">
               {category}
             </span>
           )}
           {alcoholic && (
-            <span className="rounded-full bg-black/5 px-2 py-0.5 text-xs text-black/50 dark:bg-white/10 dark:text-white/50">
+            <span className="rounded-full bg-black/5 px-2 py-0.5 text-xs text-black/60 dark:bg-white/10 dark:text-white/60">
               {alcoholic}
             </span>
           )}
@@ -224,27 +277,8 @@ function CocktailCard({
   );
 }
 
-function MicIcon() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-      <line x1="12" y1="19" x2="12" y2="22" />
-    </svg>
-  );
-}
-
 function Spinner() {
   return (
-    <div className="mr-2 h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-black/20 border-t-black/60 dark:border-white/20 dark:border-t-white/60" />
+    <Loader2 className="mr-2 h-5 w-5 shrink-0 animate-spin text-black/60 dark:text-white/60" />
   );
 }
