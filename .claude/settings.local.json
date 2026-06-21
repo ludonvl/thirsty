@@ -1,7 +1,25 @@
 {
   "permissions": {
     "allow": [
-      "Bash(/Users/ludovicnouvel/.nvm/versions/node/v24.4.0/bin/npx --yes create-next-app@latest . --ts --tailwind --app --src-dir --eslint --import-alias \"@/*\")"
+      "Bash(/Users/ludovicnouvel/.nvm/versions/node/v24.4.0/bin/npx --yes create-next-app@latest . --ts --tailwind --app --src-dir --eslint --import-alias \"@/*\")",
+      "Bash(/Users/ludovicnouvel/.nvm/versions/node/v24.4.0/bin/npm install *)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/)",
+      "Bash(echo \"home: $\\(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/\\)\")",
+      "Bash(./node_modules/.bin/tsc --noEmit)",
+      "Bash(./node_modules/.bin/next lint *)",
+      "Bash(npm run *)",
+      "Bash(./node_modules/.bin/eslint .)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(node *)",
+      "Bash(./node_modules/.bin/tsx scripts/_patch-overrides.ts)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3000/api/search?q=margarita\")",
+      "Bash(curl -s \"http://localhost:3000/api/search?q=margarita\")",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(grep -oE '\\\\.font-display[ {][^}]{0,80}')",
+      "Bash(grep -oE '\\\\.font-display\\\\}?[^.]{0,120}')",
+      "Bash(curl -s http://localhost:3000/_next/static/chunks/%5Broot-of-the-server%5D__0940vq_._.css)",
+      "Bash(xargs kill -9)",
+      "Bash(echo \"code: $\\(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/\\)\")"
     ]
   }
 }

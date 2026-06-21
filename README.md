@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🍸 Thirsty
 
-## Getting Started
+Recherche de cocktails en langage naturel (voix ou clavier) avec préparation
+détaillée. Recherche **sémantique 100 % locale** — aucune API payante, aucune clé.
 
-First, run the development server:
+## Comment ça marche
+
+1. **Ingestion** (`scripts/ingest.ts`) : récupère les ~426 cocktails de
+   [TheCocktailDB](https://www.thecocktaildb.com), les normalise, **traduit en
+   français** les champs uniquement anglais (noms d'ingrédients + instructions
+   sans version FR native) avec `Xenova/opus-mt-en-fr`, puis génère un
+   embedding **bilingue** par cocktail avec `Xenova/multilingual-e5-small`
+   (via [transformers.js](https://github.com/huggingface/transformers.js)).
+   Le résultat est écrit dans `data/cocktails.json` + `data/embeddings.json`.
+2. **Recherche** (`src/lib/search.ts` + `src/app/api/search/route.ts`) : la
+   requête est vectorisée à la volée puis comparée par similarité cosinus aux
+   vecteurs chargés en mémoire (brute-force, instantané à cette échelle). Comme
+   l'index contient le texte EN **et** FR, une recherche matche dans les deux
+   langues quelle que soit la langue d'affichage.
+3. **UI** (`src/app/page.tsx`) : barre de recherche épurée, bouton micro à
+   gauche (**Web Speech API**, Chrome/Edge), chips de filtre alcool, et un
+   **sélecteur de langue FR/EN** (mémorisé) qui traduit interface et résultats.
+
+## Démarrer
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run ingest   # une fois — télécharge le modèle (~100 Mo) puis indexe
+npm run dev      # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Notes
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- La recherche vocale repose sur la Web Speech API : disponible sur les
+  navigateurs Chromium (Chrome, Edge), le bouton est masqué ailleurs. Sa langue
+  suit le sélecteur FR/EN.
+- Les traductions FR des ingrédients/instructions sont produites par machine
+  (opus-mt) à l'ingestion : qualité correcte mais imparfaite sur certains noms
+  de marques. Les instructions FR natives de TheCocktailDB sont préférées
+  quand elles existent.
+- Les modèles d'embedding gèrent mal la **négation** : « sans alcool » n'exclut
+  pas forcément les cocktails alcoolisés. Un filtre explicite alcoolisé /
+  sans alcool peut être ajouté par-dessus la recherche sémantique.
+- Pour une base beaucoup plus grande, remplacer le scan en mémoire par
+  SQLite + `sqlite-vec` ou LanceDB (toujours local/gratuit) sans toucher au reste.
