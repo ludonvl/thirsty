@@ -96,7 +96,7 @@ export default function Home() {
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-12 sm:py-20">
-      <header className="mb-8 text-center">
+      <header className="mb-12 text-center">
         <div className="mb-4 flex justify-center gap-1">
           {LANGS.map((l) => (
             <button
@@ -118,15 +118,15 @@ export default function Home() {
           <Image
             src="/logo.png"
             alt=""
-            width={128}
-            height={128}
+            width={90}
+            height={90}
             priority
           />
           <h1 className="font-display text-7xl font-normal tracking-tight">
             Thirsty
           </h1>
         </div>
-        <p className="mt-2 text-2xl font-normal text-black/60 dark:text-white/60">
+        <p className="mt-4 text-xl font-normal text-black/60 dark:text-white/60">
           {t.tagline}
         </p>
       </header>
