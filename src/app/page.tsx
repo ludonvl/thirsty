@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { LayoutGrid, Leaf, Loader2, Martini, Mic } from "lucide-react";
+import { ArrowLeft, LayoutGrid, Leaf, Loader2, Martini, Mic } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useSpeechRecognition } from "@/lib/useSpeechRecognition";
 import { useLang } from "@/lib/useLang";
@@ -26,6 +26,7 @@ export default function Home() {
   const [results, setResults] = useState<CocktailMatch[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [selected, setSelected] = useState<CocktailMatch | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -82,6 +83,16 @@ export default function Home() {
     { value: "alcoholic", label: t.filters.alcoholic, Icon: Martini },
     { value: "non-alcoholic", label: t.filters.nonAlcoholic, Icon: Leaf },
   ];
+
+  if (selected) {
+    return (
+      <CocktailDetail
+        cocktail={selected}
+        lang={lang}
+        onBack={() => setSelected(null)}
+      />
+    );
+  }
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-12 sm:py-20">
@@ -210,7 +221,12 @@ export default function Home() {
           </p>
         )}
         {results.map((c) => (
-          <CocktailCard key={c.id} cocktail={c} lang={lang} />
+          <CocktailCard
+            key={c.id}
+            cocktail={c}
+            lang={lang}
+            onSelect={() => setSelected(c)}
+          />
         ))}
       </section>
     </main>
@@ -220,15 +236,28 @@ export default function Home() {
 function CocktailCard({
   cocktail,
   lang,
+  onSelect,
 }: {
   cocktail: CocktailMatch;
   lang: Lang;
+  onSelect: () => void;
 }) {
   const category = tCategory(cocktail.category, lang);
   const alcoholic = tAlcoholic(cocktail.alcoholic, lang);
 
   return (
-    <article className="flex gap-4 overflow-hidden rounded-2xl border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-neutral-900">
+    <article
+      role="button"
+      tabIndex={0}
+      onClick={onSelect}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect();
+        }
+      }}
+      className="flex cursor-pointer gap-4 overflow-hidden rounded-2xl border border-black/10 bg-white p-4 transition hover:border-black/20 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-black/30 dark:border-white/10 dark:bg-neutral-900 dark:hover:border-white/25 dark:focus-visible:ring-white/30"
+    >
       {cocktail.image && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -274,6 +303,103 @@ function CocktailCard({
         )}
       </div>
     </article>
+  );
+}
+
+function CocktailDetail({
+  cocktail,
+  lang,
+  onBack,
+}: {
+  cocktail: CocktailMatch;
+  lang: Lang;
+  onBack: () => void;
+}) {
+  const t = UI[lang];
+  const category = tCategory(cocktail.category, lang);
+  const alcoholic = tAlcoholic(cocktail.alcoholic, lang);
+
+  return (
+    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-10">
+      <button
+        type="button"
+        onClick={onBack}
+        className="sticky top-4 z-10 mb-4 inline-flex w-fit cursor-pointer items-center gap-2 self-start rounded-full border border-black/10 px-4 py-2 text-sm font-medium shadow-sm transition bg-white hover:border-black/20 hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/30 dark:border-white/15 dark:bg-neutral-900 dark:hover:bg-neutral-700 dark:focus-visible:ring-white/30"
+      >
+        <ArrowLeft size={16} />
+        {t.back}
+      </button>
+
+      <article className="flex flex-1 flex-col overflow-hidden rounded-3xl border border-black/10 bg-white dark:border-white/10 dark:bg-neutral-900">
+        {cocktail.image && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={cocktail.image}
+            alt={cocktail.name}
+            className="h-56 w-full shrink-0 object-cover sm:h-72"
+          />
+        )}
+
+        <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
+          <div>
+            <h1 className="font-display text-4xl font-normal tracking-tight">
+              {cocktail.name}
+            </h1>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {category && <Badge>{category}</Badge>}
+              {alcoholic && <Badge>{alcoholic}</Badge>}
+              {cocktail.glass && (
+                <Badge>
+                  {t.glass}: {cocktail.glass}
+                </Badge>
+              )}
+            </div>
+          </div>
+
+          {cocktail.ingredients.length > 0 && (
+            <section>
+              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/50 dark:text-white/50">
+                {t.ingredients}
+              </h2>
+              <ul className="space-y-1.5">
+                {cocktail.ingredients.map((ing, i) => (
+                  <li
+                    key={i}
+                    className="flex items-baseline justify-between gap-4 border-b border-black/5 pb-1.5 text-sm dark:border-white/10"
+                  >
+                    <span>{ing.name[lang]}</span>
+                    {ing.measure && (
+                      <span className="shrink-0 text-black/50 dark:text-white/50">
+                        {ing.measure}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {cocktail.instructions[lang] && (
+            <section>
+              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-black/50 dark:text-white/50">
+                {t.preparation}
+              </h2>
+              <p className="text-base leading-relaxed text-black/80 dark:text-white/80">
+                {cocktail.instructions[lang]}
+              </p>
+            </section>
+          )}
+        </div>
+      </article>
+    </main>
+  );
+}
+
+function Badge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="rounded-full bg-black/5 px-2.5 py-1 text-xs text-black/60 dark:bg-white/10 dark:text-white/60">
+      {children}
+    </span>
   );
 }
 

@@ -8,6 +8,11 @@ export const UI: Record<Lang, {
   placeholder: string;
   filters: { all: string; alcoholic: string; nonAlcoholic: string };
   empty: string;
+  back: string;
+  glass: string;
+  ingredients: string;
+  preparation: string;
+  theme: { light: string; dark: string };
   listen: string;
   stopListening: string;
   listeningHint: string;
@@ -24,6 +29,11 @@ export const UI: Record<Lang, {
     placeholder: "Un mojito, un truc fruité sans alcool…",
     filters: { all: "Tous", alcoholic: "Alcoolisé", nonAlcoholic: "Sans alcool" },
     empty: "Aucun cocktail trouvé. Essayez une autre formulation.",
+    back: "Retour aux résultats",
+    glass: "Verre",
+    ingredients: "Ingrédients",
+    preparation: "Préparation",
+    theme: { light: "Passer en thème clair", dark: "Passer en thème sombre" },
     listen: "Recherche vocale",
     stopListening: "Arrêter l’écoute",
     listeningHint: "À l’écoute… parlez, je m’arrête tout seul.",
@@ -42,6 +52,11 @@ export const UI: Record<Lang, {
     placeholder: "A mojito, something fruity and alcohol-free…",
     filters: { all: "All", alcoholic: "Alcoholic", nonAlcoholic: "Alcohol-free" },
     empty: "No cocktail found. Try rephrasing.",
+    back: "Back to results",
+    glass: "Glass",
+    ingredients: "Ingredients",
+    preparation: "Preparation",
+    theme: { light: "Switch to light theme", dark: "Switch to dark theme" },
     listen: "Voice search",
     stopListening: "Stop listening",
     listeningHint: "Listening… speak, it stops automatically.",
