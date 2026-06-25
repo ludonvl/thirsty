@@ -319,6 +319,11 @@ function CocktailDetail({
   const category = tCategory(cocktail.category, lang);
   const alcoholic = tAlcoholic(cocktail.alcoholic, lang);
 
+  // Open the detail from the top, regardless of how far the list was scrolled.
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [cocktail.id]);
+
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-6 sm:py-10">
       <button
